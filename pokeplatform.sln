@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pokeworld", "pokeworld\pokeworld.csproj", "{1120971F-05E2-40AE-BBF0-CDCA0313C1E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pokeserver", "pokeserver\pokeserver.csproj", "{0513E41F-F9A5-4066-9DA4-66AB583AE140}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pokeframework", "pokeframework\pokeframework.csproj", "{BA645209-9EDA-48F3-9447-054DBF30A381}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pokeauth", "pokeauth\pokeauth.csproj", "{CB030878-AF22-4DFF-B9AA-F85A9F2AC619}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1120971F-05E2-40AE-BBF0-CDCA0313C1E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1120971F-05E2-40AE-BBF0-CDCA0313C1E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1120971F-05E2-40AE-BBF0-CDCA0313C1E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1120971F-05E2-40AE-BBF0-CDCA0313C1E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0513E41F-F9A5-4066-9DA4-66AB583AE140}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0513E41F-F9A5-4066-9DA4-66AB583AE140}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0513E41F-F9A5-4066-9DA4-66AB583AE140}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0513E41F-F9A5-4066-9DA4-66AB583AE140}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA645209-9EDA-48F3-9447-054DBF30A381}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA645209-9EDA-48F3-9447-054DBF30A381}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA645209-9EDA-48F3-9447-054DBF30A381}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA645209-9EDA-48F3-9447-054DBF30A381}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB030878-AF22-4DFF-B9AA-F85A9F2AC619}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB030878-AF22-4DFF-B9AA-F85A9F2AC619}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB030878-AF22-4DFF-B9AA-F85A9F2AC619}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB030878-AF22-4DFF-B9AA-F85A9F2AC619}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

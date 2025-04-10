@@ -19,7 +19,6 @@ public class Connection : IAsyncDisposable
     public PipeWriter Output { get;}
     public PipeReader Input { get;}
     
-    public string? UserId { get; set; }
     public string ConnectionId { get; } = Guid.NewGuid().ToString();
 
     public Connection(Socket socket, SenderPool senderPool)
