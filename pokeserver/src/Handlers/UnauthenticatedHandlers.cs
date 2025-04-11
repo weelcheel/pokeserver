@@ -15,16 +15,21 @@ public class UnauthenticatedHandlers(RedisClient redisClient) : CommandProcessor
         if (context == null)
         {
             var failBytes = BitConverter.GetBytes(Constants.Failure);
-            var failCommand = new Command(CommandType.AuthenticateResult, command.ConnectionId, failBytes);
+            var failCommand = new Command(CommandType.AuthenticateResult, command.ConnectionId, command.UserId,
+                failBytes);
             await RedisHelper.SendMessageToConnectionAsync(RedisClient, command.ConnectionId, failCommand);
             return;
         }
+
         context.UserId = Guid.NewGuid().ToString();
         await RedisClient.SetAsync($"userContext-{command.ConnectionId}", context, TimeSpan.FromHours(2));
-        
+        await RedisClient.SetRawAsync($"connectionIdFromUser-{context.UserId}", command.ConnectionId,
+            TimeSpan.FromHours(2));
+
         // send the success number as the authentication result
         var successBytes = BitConverter.GetBytes(Constants.Success);
-        var successCommand = new Command(CommandType.AuthenticateResult, command.ConnectionId, successBytes);
+        var successCommand = new Command(CommandType.AuthenticateResult, command.ConnectionId, command.UserId,
+            successBytes);
         await RedisHelper.SendMessageToConnectionAsync(RedisClient, command.ConnectionId, successCommand);
     }
 }

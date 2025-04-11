@@ -11,7 +11,7 @@ public class GameServer(RedisClient redisClient, ILogger<GameServer> logger)
 {
     public async Task ProcessConnection(Connection connection)
     {
-        var context = new UserContext(TcpServer.ServerId);
+        var context = new UserContext(connection.ConnectionId);
         await redisClient.SetAsync($"userContext-{connection.ConnectionId}", context, TimeSpan.FromHours(2));
         await redisClient.SubscribeToChannelAsync($"connection-{connection.ConnectionId}", (channel, value) =>
         {
@@ -22,6 +22,7 @@ public class GameServer(RedisClient redisClient, ILogger<GameServer> logger)
             }
             _ = Utility.Send(connection, [command]);
         });
+        
         logger.LogInformation("Connection received, context created, and redis subscription created!");
         
         connection.Start();
@@ -91,7 +92,8 @@ public class GameServer(RedisClient redisClient, ILogger<GameServer> logger)
                     var commandParams = new byte[commandParamsSize];
                     Array.Copy(commandBytes, 3 + bytesRead, commandParams, 0, commandParamsSize);
 
-                    var command = new Command((CommandType)commandType, connection.ConnectionId, commandParams);
+                    var userId = await RedisHelper.GetUserIdFromConnectionId(redisClient, connection.ConnectionId);
+                    var command = new Command((CommandType)commandType, connection.ConnectionId, userId, commandParams);
                     await redisClient.PublishMessageAsync($"command{command.CommandType}",
                         JsonSerializer.Serialize(command));
 

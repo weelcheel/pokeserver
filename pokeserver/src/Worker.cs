@@ -1,9 +1,10 @@
+using PokeFramework.Service;
 using PokeServer.Game.Server;
 using PokeServer.Server;
 
 namespace PokeServer;
 
-public class Worker(ILogger<Worker> logger, GameServer gameServer) : BackgroundService
+public class Worker(ILogger<Worker> logger, GameServer gameServer) : PokeBackgroundService(logger)
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {

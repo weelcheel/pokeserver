@@ -30,11 +30,18 @@ public class RedisClient(string connectionString, ILogger<RedisClient>? logger)
         var serializedValue = JsonSerializer.Serialize(value);
         return await db.StringSetAsync(key, serializedValue, expiry);
     }
-    
-    public bool Set(string key, string value, TimeSpan? expiry = null)
+
+    public async Task<bool> SetRawAsync(string key, string value, TimeSpan? expiry = null)
     {
         var db = _connection.GetDatabase();
-        return db.StringSet(key, value, expiry);
+        var serializedValue = value;
+        return await db.StringSetAsync(key, serializedValue, expiry);
+    }
+    
+    public bool Set<T>(string key, T value, TimeSpan? expiry = null)
+    {
+        var db = _connection.GetDatabase();
+        return db.StringSet(key, JsonSerializer.Serialize(value), expiry);
     }
 
     public async Task<T?> GetAsync<T>(string key)
@@ -42,6 +49,13 @@ public class RedisClient(string connectionString, ILogger<RedisClient>? logger)
         var db = _connection.GetDatabase();
         var value = await db.StringGetAsync(key);
         return value.IsNullOrEmpty ? default : JsonSerializer.Deserialize<T>(value.ToString());
+    }
+
+    public async Task<string?> GetRawAsync(string key)
+    {
+        var db = _connection.GetDatabase();
+        var value = await db.StringGetAsync(key);
+        return value.IsNullOrEmpty ? null : value.ToString();
     }
     
     public T? Get<T>(string key)

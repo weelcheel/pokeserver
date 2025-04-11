@@ -3,14 +3,19 @@ namespace PokeFramework.Commands;
 public enum CommandType : byte
 {
     Authenticate,
-    AuthenticateResult
+    AuthenticateResult,
+    JoinMap,
+    JoinMapResult,
+    Move,
+    GameState,
 }
 
-public class Command(CommandType commandType, string connectionId, byte[] commandParams)
+public class Command(CommandType commandType, string connectionId, string? userId = null, byte[]? commandParams = null)
 {
     public CommandType CommandType { get; } = commandType;
-    public byte[] CommandParams { get; } = commandParams;
+    public byte[]? CommandParams { get; } = commandParams;
     public string ConnectionId { get; } = connectionId;
+    public string? UserId { get; } = userId;
 }
 
 public static class Constants
