@@ -13,7 +13,6 @@ public class RedisClient(string connectionString, ILogger<RedisClient>? logger)
         var pubSub = _connection.GetSubscriber();
 
         await pubSub.PublishAsync(RedisChannel.Literal(channel), message);
-        logger?.LogInformation("Published to channel {channel}: {message}", channel, message);
     }
 
     public async Task SubscribeToChannelAsync(string channel, Action<RedisChannel, RedisValue> handler)
@@ -63,5 +62,11 @@ public class RedisClient(string connectionString, ILogger<RedisClient>? logger)
         var db = _connection.GetDatabase();
         var value = db.StringGet(key);
         return value.IsNullOrEmpty ? default : JsonSerializer.Deserialize<T>(value.ToString());
+    }
+
+    public async Task<bool> DeleteAsync(string key)
+    {
+        var db = _connection.GetDatabase();
+        return await db.KeyDeleteAsync(key);
     }
 }

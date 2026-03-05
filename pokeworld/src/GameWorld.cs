@@ -25,7 +25,7 @@ public class GameWorld(ILogger<GameWorld> logger, RedisClient redisClient)
             _instancesLock.Release();
         }
 
-        await Task.Delay(TimeSpan.FromMilliseconds(33), stoppingToken);
+        await Task.Delay(TimeSpan.FromMilliseconds(500), stoppingToken);
     }
 
     private void PlayerLeftMap(string userId)
@@ -36,6 +36,20 @@ public class GameWorld(ILogger<GameWorld> logger, RedisClient redisClient)
         }
 
         instance.RemovePlayer(userId);
+        _platformUserInstanceMap.Remove(userId);
+    }
+
+    public async Task PlayerDisconnected(string userId)
+    {
+        await _instancesLock.WaitAsync();
+        try
+        {
+            PlayerLeftMap(userId);
+        }
+        finally
+        {
+            _instancesLock.Release();
+        }
     }
 
     public async Task PlayerJoinedMap(ushort mapId, string userId)
@@ -81,13 +95,14 @@ public class GameWorld(ILogger<GameWorld> logger, RedisClient redisClient)
         }
     }
 
-    public void PlayerMove(TrainerMovement newMovement, string userId)
+    public async Task PlayerMove(string userId, TrainerLocation newLocation, byte movementAction)
     {
         if (!_platformUserInstanceMap.TryGetValue(userId, out var instance))
         {
             return;
         }
 
-        instance.UpdatePlayerMovement(userId, newMovement);
+        instance.UpdatePlayerLocation(userId, newLocation);
+        await instance.RelayMovement(userId, movementAction);
     }
 }

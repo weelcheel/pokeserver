@@ -8,6 +8,8 @@ public enum CommandType : byte
     JoinMapResult,
     Move,
     GameState,
+    PlayerMovement,
+    Disconnect,
 }
 
 public class Command(CommandType commandType, string connectionId, string? userId = null, byte[]? commandParams = null)

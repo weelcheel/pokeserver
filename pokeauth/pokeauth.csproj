@@ -1,10 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UserSecretsId>dotnet-pokeauth-64837b76-2b5c-4775-951b-e6df94bd79e6</UserSecretsId>
+        <LangVersion>14</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>

@@ -53,6 +53,14 @@ public class GameServer(RedisClient redisClient, ILogger<GameServer> logger)
         }
         finally
         {
+            var userId = await RedisHelper.GetUserIdFromConnectionId(redisClient, connection.ConnectionId);
+            if (userId != null)
+            {
+                var disconnectCommand = new Command(CommandType.Disconnect, connection.ConnectionId, userId);
+                await redisClient.PublishMessageAsync($"command{CommandType.Disconnect}",
+                    System.Text.Json.JsonSerializer.Serialize(disconnectCommand));
+            }
+            await redisClient.DeleteAsync($"userContext-{connection.ConnectionId}");
             connection.Shutdown();
             await connection.DisposeAsync();
             logger.LogInformation("Connection closed!");

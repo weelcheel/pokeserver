@@ -27,8 +27,6 @@ public class GameInstance(RedisClient redisClient, ILogger logger)
         {
             _playersLock.Release();
         }
-
-        await Task.Delay(TimeSpan.FromMilliseconds(33), stoppingToken);
     }
 
     public async Task AddPlayer(string userId)
@@ -78,7 +76,7 @@ public class GameInstance(RedisClient redisClient, ILogger logger)
             await RedisHelper.SendMessageToConnectionAsync(redisClient, connectionId,
                 new Command(CommandType.JoinMapResult, connectionId, userId, resultId));
 
-            logger.LogInformation($"Player {userId} added to instance with game user ID {gameUserId}.");
+            logger.LogInformation($"Player {userId} added to instance with game user ID {gameUserId}. There are {_players.Count} players in the instance.");
         }
         finally
         {
@@ -106,19 +104,39 @@ public class GameInstance(RedisClient redisClient, ILogger logger)
         }
     }
 
-    public void UpdatePlayerMovement(string userId, TrainerMovement newMovement)
+    public void UpdatePlayerLocation(string userId, TrainerLocation newLocation)
     {
         if (!_platformToGameUserIds.TryGetValue(userId, out var gameUserId))
-        {
-            throw new InvalidOperationException("Player not found in instance.");
-        }
-
+            return;
         if (!_players.TryGetValue(gameUserId, out var player))
-        {
-            throw new InvalidOperationException("Player not found in instance.");
-        }
+            return;
+        player.Location = newLocation;
+        player.HasPosition = true;
+    }
 
-        player.UpdateMovement(newMovement);
+    public async Task RelayMovement(string userId, byte movementAction)
+    {
+        if (!_platformToGameUserIds.TryGetValue(userId, out var senderGameUserId))
+            return;
+
+        var commandParams = new byte[] { senderGameUserId, movementAction };
+        var command = new Command(CommandType.PlayerMovement, "", null, commandParams);
+
+        await _playersLock.WaitAsync();
+        try
+        {
+            foreach (var player in _players.Select(pair => pair.Value))
+            {
+                if (player.UserId == userId)
+                    continue;
+                var connectionId = await RedisHelper.GetConnectionIdFromUserId(redisClient, player.UserId);
+                await RedisHelper.SendMessageToConnectionAsync(redisClient, connectionId, command);
+            }
+        }
+        finally
+        {
+            _playersLock.Release();
+        }
     }
 
     public int GetPlayerCount()
@@ -128,35 +146,27 @@ public class GameInstance(RedisClient redisClient, ILogger logger)
 
     private Command GenerateCommandFromGameState()
     {
-        // first byte is the count of players
-        // for each player in the instance
-        // next 2 bytes are the X coordinate
-        // next 2 bytes are the Y coordinate
-        // next byte is the action
-        // next byte is the current elevation
-        // next byte is the facing direction
-        // total bytes = 1 + (7 * playerCount)
-
         _playersLock.Wait();
         try
         {
-            var commandParams = new byte[1 + (8 * _players.Count)];
-            commandParams[0] = (byte)_players.Count;
-            for (int i = 0; i < _players.Count; i++)
+            var playersWithPosition = _players.Where(p => p.Value.HasPosition).ToList();
+            var commandParams = new byte[1 + (48 * playersWithPosition.Count)];
+            commandParams[0] = (byte)playersWithPosition.Count;
+            for (int i = 0; i < playersWithPosition.Count; i++)
             {
-                var playerPair = _players.ElementAt(i);
-                commandParams[1 + ((i + 1) * 7)] = playerPair.Key;
+                var playerPair = playersWithPosition[i];
+                commandParams[1 + (i * 48)] = playerPair.Key;
 
-                var xBytes = BitConverter.GetBytes(playerPair.Value.Movement.X);
-                var yBytes = BitConverter.GetBytes(playerPair.Value.Movement.Y);
+                var xBytes = BitConverter.GetBytes(playerPair.Value.Location.X);
+                var yBytes = BitConverter.GetBytes(playerPair.Value.Location.Y);
 
-                commandParams[2 + (i * 7)] = xBytes[0];
-                commandParams[3 + (i * 7)] = xBytes[1];
-                commandParams[4 + (i * 7)] = yBytes[0];
-                commandParams[5 + (i * 7)] = yBytes[1];
-                commandParams[6 + (i * 7)] = playerPair.Value.Movement.Action;
-                commandParams[7 + (i * 7)] = playerPair.Value.Movement.CurrentElevation;
-                commandParams[8 + (i * 7)] = playerPair.Value.Movement.FacingDirection;
+                commandParams[2 + (i * 48)] = xBytes[0];
+                commandParams[3 + (i * 48)] = xBytes[1];
+                commandParams[4 + (i * 48)] = yBytes[0];
+                commandParams[5 + (i * 48)] = yBytes[1];
+                commandParams[6 + (i * 48)] = playerPair.Value.Location.Action;
+                commandParams[7 + (i * 48)] = playerPair.Value.Location.CurrentElevation;
+                commandParams[8 + (i * 48)] = playerPair.Value.Location.FacingDirection;
             }
 
             return new Command(CommandType.GameState, "", "", commandParams);
