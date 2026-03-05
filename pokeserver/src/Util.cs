@@ -1,5 +1,4 @@
-using System.Buffers;
-using PokeServer.Game;
+using PokeFramework.Commands;
 using PokeServer.Server;
 
 namespace PokeServer;
@@ -14,14 +13,17 @@ public static class Utility
         }
         
         // calculate the size of each command
-        var commandDataSize = commands.Sum(command => 1 + 1 + command.CommandParams.Length);
+        var commandDataSize = commands.Sum(command => 1 + 1 + (command.CommandParams?.Length ?? 0));
 
         var commandData = new List<byte>(commandDataSize);
         foreach (var command in commands)
         {
             commandData.Add((byte)command.CommandType);
-            commandData.Add((byte)command.CommandParams.Length);
-            commandData.AddRange(command.CommandParams);
+            commandData.Add((byte)(command.CommandParams?.Length ?? 0));
+            if (command.CommandParams != null)
+            {
+                commandData.AddRange(command.CommandParams);   
+            }
         }
         
         byte[] packet = new byte[7 + commandDataSize];

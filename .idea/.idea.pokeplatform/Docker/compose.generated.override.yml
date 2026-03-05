@@ -1,0 +1,40 @@
+# This is a generated file. Not intended for manual editing.
+services:
+  game-world:
+    build:
+      context: "/home/weel/repos/pokemmo/pokeserver/pokeworld"
+      dockerfile: "Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net9.0/pokeworld.dll"
+    environment:
+      DOTNET_ENVIRONMENT: "Development"
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "pokeworld:dev"
+    ports: []
+    volumes:
+    - "/home/weel/repos/pokemmo/pokeserver/pokeworld:/app:rw"
+    - "/home/weel/repos/pokemmo/pokeserver:/src:rw"
+    - "/home/weel/.nuget/packages:/home/app/.nuget/packages"
+    working_dir: "/app"
+  server:
+    build:
+      context: "/home/weel/repos/pokemmo/pokeserver/pokeserver"
+      dockerfile: "Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net9.0/pokeserver.dll"
+    environment:
+      DOTNET_ENVIRONMENT: "Development"
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "pokeserver:dev"
+    ports: []
+    volumes:
+    - "/home/weel/repos/pokemmo/pokeserver/pokeserver:/app:rw"
+    - "/home/weel/repos/pokemmo/pokeserver:/src:rw"
+    - "/home/weel/.nuget/packages:/home/app/.nuget/packages"
+    working_dir: "/app"

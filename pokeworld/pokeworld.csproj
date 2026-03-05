@@ -4,7 +4,7 @@
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <UserSecretsId>dotnet-pokeserver-c491bc8e-445e-48cd-9d41-3ad37453bf81</UserSecretsId>
+        <UserSecretsId>dotnet-pokeworld-5baa3668-f61e-4a5c-b05d-1414ad2b712c</UserSecretsId>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <LangVersion>14</LangVersion>
     </PropertyGroup>

@@ -5,6 +5,8 @@ namespace PokeServer.Server;
 
 public class TcpServer(Delegates.ProcessConnection processConnection)
 {
+    public static readonly string ServerId = Guid.NewGuid().ToString();
+    
     public async Task Listen(CancellationToken cancellationToken)
     {
         var senderPool = new SenderPool(1024);
