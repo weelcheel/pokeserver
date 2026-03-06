@@ -4,6 +4,7 @@ public enum CommandType : byte
 {
     Authenticate,
     AuthenticateResult,
+    AuthenticateUserPass,
     JoinMap,
     JoinMapResult,
     Move,

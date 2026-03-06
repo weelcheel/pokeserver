@@ -90,22 +90,22 @@ public class GameServer(RedisClient redisClient, ILogger<GameServer> logger)
                 var commandCount = commandBytes[0];
 
                 // a command has its first byte as the command type
-                // the second byte is the number of bytes in the command's data params
+                // the next two bytes are the 16-bit LE length of the command's data params
                 // the rest of the bytes of the command are the data params
                 var bytesRead = 0;
                 for (var i = 0; i < commandCount; i++)
                 {
                     var commandType = commandBytes[1 + bytesRead];
-                    var commandParamsSize = commandBytes[1 + bytesRead + 1];
+                    var commandParamsSize = (ushort)(commandBytes[1 + bytesRead + 1] | (commandBytes[1 + bytesRead + 2] << 8));
                     var commandParams = new byte[commandParamsSize];
-                    Array.Copy(commandBytes, 3 + bytesRead, commandParams, 0, commandParamsSize);
+                    Array.Copy(commandBytes, 4 + bytesRead, commandParams, 0, commandParamsSize);
 
                     var userId = await RedisHelper.GetUserIdFromConnectionId(redisClient, connection.ConnectionId);
                     var command = new Command((CommandType)commandType, connection.ConnectionId, userId, commandParams);
                     await redisClient.PublishMessageAsync($"command{command.CommandType}",
                         JsonSerializer.Serialize(command));
 
-                    bytesRead += 2 + commandParamsSize;
+                    bytesRead += 3 + commandParamsSize;
                 }
             }
         }

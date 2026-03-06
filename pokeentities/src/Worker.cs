@@ -1,4 +1,4 @@
-namespace PokeAuth;
+namespace PokeEntities;
 
 public class Worker(ILogger<Worker> logger) : BackgroundService
 {

@@ -12,14 +12,16 @@ public static class Utility
             return;
         }
         
-        // calculate the size of each command
-        var commandDataSize = commands.Sum(command => 1 + 1 + (command.CommandParams?.Length ?? 0));
+        // calculate the size of each command (1 byte type + 2 bytes length + params)
+        var commandDataSize = commands.Sum(command => 1 + 2 + (command.CommandParams?.Length ?? 0));
 
         var commandData = new List<byte>(commandDataSize);
         foreach (var command in commands)
         {
             commandData.Add((byte)command.CommandType);
-            commandData.Add((byte)(command.CommandParams?.Length ?? 0));
+            var paramsLength = (ushort)(command.CommandParams?.Length ?? 0);
+            commandData.Add((byte)(paramsLength & 0xFF));
+            commandData.Add((byte)((paramsLength >> 8) & 0xFF));
             if (command.CommandParams != null)
             {
                 commandData.AddRange(command.CommandParams);   

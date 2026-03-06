@@ -3,7 +3,18 @@ services:
     build: ../pokeserver/
     ports:
       - "6969:6969"
+    networks:
+      - proxynet
   game-world:
     build: ../pokeworld/
+    networks:
+      - proxynet
   redis:
     image: redis:latest
+    networks:
+      - proxynet
+  
+networks:
+  proxynet:
+    name: dev_network
+    external: true
